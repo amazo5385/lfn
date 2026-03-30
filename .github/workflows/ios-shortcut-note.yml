@@ -1,0 +1,97 @@
+name: iOS Shortcut Note
+
+on:
+  workflow_dispatch:
+    inputs:
+      note:
+        description: 写入今天的笔记；留空则只创建当天条目
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ios-shortcut-note-${{ github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  note:
+    runs-on: ubuntu-latest
+    env:
+      LANG: C.UTF-8
+      LC_ALL: C.UTF-8
+      PYTHONUTF8: "1"
+      PYTHONIOENCODING: utf-8
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.ref_name }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install uv
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Sync project
+        run: uv sync --locked
+
+      - name: Debug workflow dispatch input
+        env:
+          WORKFLOW_INPUT_NOTE: ${{ inputs.note }}
+          EVENT_INPUT_NOTE: ${{ github.event.inputs.note }}
+          EVENT_INPUTS_JSON: ${{ toJson(github.event.inputs) }}
+        run: |
+          uv run python - <<'PY'
+          import os
+
+          def show(label: str, value: str) -> None:
+              print(f"{label}: {value!r}")
+              print(f"{label} length: {len(value)}")
+
+          show("inputs.note", os.environ.get("WORKFLOW_INPUT_NOTE", ""))
+          show("github.event.inputs.note", os.environ.get("EVENT_INPUT_NOTE", ""))
+          print(f"github.event.inputs json: {os.environ.get('EVENT_INPUTS_JSON', '')}")
+          PY
+
+      - name: Run lfn
+        env:
+          LIFE_NOTE_DIR: ${{ github.workspace }}
+          LFN_NOTE: ${{ inputs.note }}
+        run: |
+          set -euo pipefail
+
+          note="$(printf '%s' "$LFN_NOTE" | tr '\r\n' ' ' | sed 's/[[:space:]]\+/ /g; s/^ //; s/ $//')"
+          printf 'normalized workflow note: %q\n' "$note"
+          printf 'normalized workflow note length: %s\n' "${#note}"
+
+          if [ -n "$note" ]; then
+            printf 'workflow note: %s\n' "$note"
+            uv run lfn --no-update --add "$note"
+          else
+            echo "workflow note: <empty>"
+            uv run lfn --no-update
+          fi
+
+      - name: Commit README
+        run: |
+          set -euo pipefail
+
+          if git diff --quiet -- README.md; then
+            echo "README.md has no changes"
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add README.md
+          git commit -m "chore: update life note from workflow dispatch" -s
+          git push

